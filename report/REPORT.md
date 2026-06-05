@@ -1,8 +1,8 @@
-# Bao Cao Lab 7: Embedding & Vector Store
+# Báo Cáo Lab 7: Embedding & Vector Store
 
-**Ho ten:** Nguyen Trong Tan  
-**Nhom:** DigitalOcean Knowledge Bases Docs  
-**Ngay:** 05/06/2026
+**Họ tên:** Nguyễn Trọng Tấn  
+**Nhóm:** DigitalOcean Knowledge Bases Docs  
+**Ngày:** 05/06/2026
 
 ---
 
@@ -10,25 +10,25 @@
 
 ### Cosine Similarity
 
-**High cosine similarity nghia la gi?**  
-Hai text chunks co high cosine similarity khi vector embedding cua chung nam gan cung huong trong khong gian vector. Dieu nay thuong co nghia la hai doan noi ve noi dung hoac y dinh tuong tu nhau, du co the dung tu khac nhau.
+**High cosine similarity nghĩa là gì?**  
+Hai text chunks có high cosine similarity khi vector embedding của chúng nằm gần cùng hướng trong không gian vector. Điều này thường có nghĩa là hai đoạn nói về nội dung hoặc ý định tương tự nhau, dù có thể dùng từ khác nhau.
 
-**Vi du HIGH similarity:**
+**Ví dụ HIGH similarity:**
 - Sentence A: "Vector databases store embeddings for similarity search."
 - Sentence B: "A vector store keeps embedding vectors so users can find similar documents."
-- Tai sao tuong dong: ca hai deu noi ve vector store, embeddings va similarity search.
+- Tại sao tương đồng: cả hai đều nói về vector store, embeddings và similarity search.
 
-**Vi du LOW similarity:**
+**Ví dụ LOW similarity:**
 - Sentence A: "Metadata filters narrow retrieval results to relevant documents."
 - Sentence B: "A chocolate cake needs flour, sugar, and butter."
-- Tai sao khac: hai cau thuoc hai domain khac nhau, mot cau ve retrieval, mot cau ve nau an.
+- Tại sao khác: hai câu thuộc hai domain khác nhau, một câu về retrieval, một câu về nấu ăn.
 
-**Tai sao cosine similarity duoc uu tien hon Euclidean distance cho text embeddings?**  
-Cosine similarity tap trung vao huong cua vector, nen phu hop voi viec do muc do giong nhau ve nghia. Euclidean distance bi anh huong nhieu boi do lon vector, trong khi text embedding thuong quan trong huong ngu nghia hon khoang cach hinh hoc tuyet doi.
+**Tại sao cosine similarity được ưu tiên hơn Euclidean distance cho text embeddings?**  
+Cosine similarity tập trung vào hướng của vector, nên phù hợp với việc đo mức độ giống nhau về nghĩa. Euclidean distance bị ảnh hưởng nhiều bởi độ lớn vector, trong khi text embedding thường quan trọng hướng ngữ nghĩa hơn khoảng cách hình học tuyệt đối.
 
 ### Chunking Math
 
-**Document 10,000 ky tu, chunk_size=500, overlap=50. Bao nhieu chunks?**
+**Document 10,000 ký tự, chunk_size=500, overlap=50. Bao nhiêu chunks?**
 
 Formula:
 
@@ -40,7 +40,7 @@ num_chunks = ceil((doc_length - overlap) / (chunk_size - overlap))
            = 23 chunks
 ```
 
-**Neu overlap tang len 100 thi sao?**
+**Nếu overlap tăng lên 100 thì sao?**
 
 ```text
 num_chunks = ceil((10000 - 100) / (500 - 100))
@@ -49,21 +49,21 @@ num_chunks = ceil((10000 - 100) / (500 - 100))
            = 25 chunks
 ```
 
-Overlap lon hon lam tang so chunk, nhung giup giu lai context giua hai chunk lien tiep. Dieu nay huu ich khi cau tra loi nam sat ranh gioi giua hai chunk.
+Overlap lớn hơn làm tăng số chunk, nhưng giúp giữ lại context giữa hai chunk liền tiếp. Điều này hữu ích khi câu trả lời nằm sát ranh giới giữa hai chunk.
 
 ---
 
-## 2. Document Selection - Nhom
+## 2. Document Selection - Nhóm
 
-### Domain & Ly Do Chon
+### Domain & Lý Do Chọn
 
 **Domain:** DigitalOcean Knowledge Bases / RAG documentation.
 
-Nhom chon DigitalOcean Knowledge Bases docs vi tai lieu lien quan truc tiep den embedding, chunking, retrieval, metadata filtering va reranking. Day la bo docs cong khai, co URL ro rang, cau truc Markdown nhieu heading, rat phu hop de so sanh cac chunking strategy.
+Nhóm chọn DigitalOcean Knowledge Bases docs vì tài liệu liên quan trực tiếp đến embedding, chunking, retrieval, metadata filtering và reranking. Đây là bộ docs công khai, có URL rõ ràng, cấu trúc Markdown nhiều heading, rất phù hợp để so sánh các chunking strategy.
 
 ### Data Inventory
 
-| # | Ten tai lieu | Nguon | So ky tu | Metadata da gan |
+| # | Tên tài liệu | Nguồn | Số ký tự | Metadata đã gán |
 |---|---|---|---:|---|
 | 1 | `do_retrieval_best_practices.md` | DigitalOcean Docs | 6779 | `category=retrieval`, `doc_type=concept`, `audience=developer` |
 | 2 | `do_chunking_best_practices.md` | DigitalOcean Docs | 8507 | `category=chunking`, `doc_type=concept`, `audience=developer` |
@@ -73,15 +73,15 @@ Nhom chon DigitalOcean Knowledge Bases docs vi tai lieu lien quan truc tiep den 
 
 ### Metadata Schema
 
-| Truong metadata | Kieu | Vi du gia tri | Tai sao huu ich cho retrieval? |
+| Trường metadata | Kiểu | Ví dụ giá trị | Tại sao hữu ích cho retrieval? |
 |---|---|---|---|
-| `doc_id` | string | `do_retrieval_best_practices` | Xac dinh tai lieu goc va dung de delete/filter. |
-| `source` | string | `DigitalOcean Docs` | Ghi nguon trong report va demo. |
-| `url` | string | URL goc | Trace lai evidence va gold answer. |
-| `category` | string | `retrieval`, `chunking` | Loc theo chu de khi query ro domain. |
-| `doc_type` | string | `concept`, `how_to` | Phan biet tai lieu giai thich va huong dan thao tac. |
-| `language` | string | `en` | Ghi ngon ngu tai lieu. |
-| `audience` | string | `developer`, `operator` | Loc theo nhom nguoi dung hoac muc dich su dung. |
+| `doc_id` | string | `do_retrieval_best_practices` | Xác định tài liệu gốc và dùng để delete/filter. |
+| `source` | string | `DigitalOcean Docs` | Ghi nguồn trong report và demo. |
+| `url` | string | URL gốc | Trace lại evidence và gold answer. |
+| `category` | string | `retrieval`, `chunking` | Lọc theo chủ đề khi query rõ domain. |
+| `doc_type` | string | `concept`, `how_to` | Phân biệt tài liệu giải thích và hướng dẫn thao tác. |
+| `language` | string | `en` | Ghi ngôn ngữ tài liệu. |
+| `audience` | string | `developer`, `operator` | Lọc theo nhóm người dùng hoặc mục đích sử dụng. |
 
 ---
 
@@ -89,25 +89,25 @@ Nhom chon DigitalOcean Knowledge Bases docs vi tai lieu lien quan truc tiep den 
 
 ### Baseline Analysis
 
-Chay `ChunkingStrategyComparator().compare()` tren 2 tai lieu voi `chunk_size=700`.
+Chạy `ChunkingStrategyComparator().compare()` trên 2 tài liệu với `chunk_size=700`.
 
-| Tai lieu | Strategy | Chunk Count | Avg Length | Preserves Context? |
+| Tài liệu | Strategy | Chunk Count | Avg Length | Preserves Context? |
 |---|---|---:|---:|---|
-| `do_retrieval_best_practices.md` | FixedSizeChunker | 11 | 679.9 | Trung binh, co the cat ngang section |
-| `do_retrieval_best_practices.md` | SentenceChunker | 10 | 675.8 | Tot hon ve cau, nhung khong bam heading |
-| `do_retrieval_best_practices.md` | RecursiveChunker | 13 | 511.5 | Tot, giu paragraph/section nho hon |
-| `do_chunking_best_practices.md` | FixedSizeChunker | 14 | 672.6 | Trung binh |
-| `do_chunking_best_practices.md` | SentenceChunker | 20 | 423.1 | De doc, nhieu chunk hon |
-| `do_chunking_best_practices.md` | RecursiveChunker | 17 | 498.6 | Can bang size va context |
+| `do_retrieval_best_practices.md` | FixedSizeChunker | 11 | 679.9 | Trung bình, có thể cắt ngang section |
+| `do_retrieval_best_practices.md` | SentenceChunker | 10 | 675.8 | Tốt hơn về câu, nhưng không bám heading |
+| `do_retrieval_best_practices.md` | RecursiveChunker | 13 | 511.5 | Tốt, giữ paragraph/section nhỏ hơn |
+| `do_chunking_best_practices.md` | FixedSizeChunker | 14 | 672.6 | Trung bình |
+| `do_chunking_best_practices.md` | SentenceChunker | 20 | 423.1 | Dễ đọc, nhiều chunk hơn |
+| `do_chunking_best_practices.md` | RecursiveChunker | 17 | 498.6 | Cân bằng size và context |
 
-### Strategy Cua Toi
+### Strategy Của Tôi
 
-**Loai:** Custom Markdown Heading Chunker.
+**Loại:** Custom Markdown Heading Chunker.
 
-Strategy cua toi chia tai lieu Markdown theo heading `#`, `##`, `###`. Moi chunk giu heading va noi dung ben duoi heading de khi retrieve co the trace ve section goc. Neu mot section qua dai, chunker fallback sang `RecursiveChunker` de chia nho body nhung van gan lai heading len tung chunk con.
+Strategy của tôi chia tài liệu Markdown theo heading `#`, `##`, `###`. Mỗi chunk giữ heading và nội dung bên dưới heading để khi retrieve có thể trace về section gốc. Nếu một section quá dài, chunker fallback sang `RecursiveChunker` để chia nhỏ body nhưng vẫn gắn lại heading lên từng chunk con.
 
-**Tai sao chon strategy nay cho domain nhom?**  
-DigitalOcean docs co cau truc heading ro rang theo concept/how-to/reference. Vi vay chia theo heading phu hop hon fixed-size, vi ranh gioi heading thuong la ranh gioi y nghia that cua tai lieu. Cach nay cung de giai thich khi demo: query hoi concept nao thi ky vong retrieve dung section do.
+**Tại sao tôi chọn strategy này cho domain nhóm?**  
+DigitalOcean docs có cấu trúc heading rõ ràng theo concept/how-to/reference. Vì vậy chia theo heading phù hợp hơn fixed-size, vì ranh giới heading thường là ranh giới ý nghĩa thật của tài liệu. Cách này cũng dễ giải thích khi demo: query hỏi concept nào thì kỳ vọng retrieve đúng section đó.
 
 **Code snippet:**
 
@@ -126,51 +126,51 @@ class MarkdownHeadingChunker:
         # Split by heading, keep heading in each chunk.
 ```
 
-### So Sanh: Strategy cua toi vs Baseline
+### So Sánh: Strategy của tôi vs Baseline
 
-| Tai lieu | Strategy | Chunk Count | Avg Length | Retrieval Quality? |
+| Tài liệu | Strategy | Chunk Count | Avg Length | Retrieval Quality? |
 |---|---|---:|---:|---|
-| `do_retrieval_best_practices.md` | best baseline: RecursiveChunker | 13 | 511.5 | Tot, nhung heading trace khong ro bang custom |
-| `do_retrieval_best_practices.md` | **MarkdownHeadingChunker** | 11 | ~616 | Tot, top-3 relevant voi retrieval queries |
-| `do_chunking_best_practices.md` | best baseline: RecursiveChunker | 17 | 498.6 | Tot, chia paragraph on dinh |
-| `do_chunking_best_practices.md` | **MarkdownHeadingChunker** | 16 | ~532 | Tot, giu heading nhu `Improve Chunking Performance` |
+| `do_retrieval_best_practices.md` | best baseline: RecursiveChunker | 13 | 511.5 | Tốt, nhưng heading trace không rõ bằng custom |
+| `do_retrieval_best_practices.md` | **MarkdownHeadingChunker** | 11 | ~616 | Tốt, top-3 relevant với retrieval queries |
+| `do_chunking_best_practices.md` | best baseline: RecursiveChunker | 17 | 498.6 | Tốt, chia paragraph ổn định |
+| `do_chunking_best_practices.md` | **MarkdownHeadingChunker** | 16 | ~532 | Tốt, giữ heading như `Improve Chunking Performance` |
 
-### So Sanh Voi Thanh Vien Khac
+### So Sánh Với Thành Viên Khác
 
-| Thanh vien | Strategy | Retrieval Score (/10) | Diem manh | Diem yeu |
+| Thành viên | Strategy | Retrieval Score (/10) | Điểm mạnh | Điểm yếu |
 |---|---|---:|---|---|
-|Nguyễn Trọng Tấn-2A202600901 | Markdown heading custom | 9 | Trace dung section, co rationale ro | Can fallback khi section dai |
-| Chuc | Fixed-size baseline | TBD | Don gian, on dinh | De cat ngang y/heading |
-| Quang | Sentence-based | TBD | Chunk de doc | Size khong deu, khong bam heading |
-| Lam | Recursive | TBD | Can bang context va size | Can tune separator |
+| Tôi - Tấn | Markdown heading custom | 9 | Trace đúng section, có rationale rõ | Cần fallback nếu section dài |
+| Chức | Fixed-size baseline | TBD | Đơn giản, ổn định | Dễ cắt ngang ý/heading |
+| Quang | Sentence-based | TBD | Chunk dễ đọc | Size không đều, không bám heading |
+| Lam | Recursive | TBD | Cân bằng context và size | Cần tune separator |
 
-**Strategy nao tot nhat cho domain nay?**  
-Voi DigitalOcean docs, Markdown heading custom rat phu hop vi docs co section ro rang va query thuong hoi theo concept. Recursive chunking co the la baseline manh, nhung heading custom de trace nguon hon va de trinh bay trong demo hon.
+**Strategy nào tốt nhất cho domain này?**  
+Với DigitalOcean docs, Markdown heading custom rất phù hợp vì docs có section rõ ràng và query thường hỏi theo concept. Recursive chunking có thể là baseline mạnh, nhưng heading custom dễ trace nguồn hơn và dễ trình bày trong demo hơn.
 
 ---
 
-## 4. My Approach - Ca Nhan
+## 4. My Approach - Cá Nhân
 
 ### Chunking Functions
 
 **`SentenceChunker.chunk`**  
-Dung regex `(?<=[.!?])(?:\s+|\n+)` de tach cau sau dau `.`, `!`, `?`. Sau do gom moi `max_sentences_per_chunk` cau thanh mot chunk va strip whitespace. Edge case: text rong tra ve `[]`.
+Dùng regex `(?<=[.!?])(?:\s+|\n+)` để tách câu sau dấu `.`, `!`, `?`. Sau đó gom mỗi `max_sentences_per_chunk` câu thành một chunk và strip whitespace. Edge case: text rỗng trả về `[]`.
 
 **`RecursiveChunker.chunk` / `_split`**  
-Thuat toan thu cac separator theo thu tu uu tien `\n\n`, `\n`, `. `, space, sau do moi fallback fixed-size. Base case la khi text da nho hon `chunk_size`. Neu mot piece van qua dai, ham tiep tuc recurse voi separator tiep theo.
+Thuật toán thử các separator theo thứ tự ưu tiên `\n\n`, `\n`, `. `, space, sau đó mới fallback fixed-size. Base case là khi text đã nhỏ hơn `chunk_size`. Nếu một piece vẫn quá dài, hàm tiếp tục recurse với separator tiếp theo.
 
 ### EmbeddingStore
 
 **`add_documents` + `search`**  
-Moi `Document` duoc normalize thanh record gom `id`, `doc_id`, `content`, `metadata`, `embedding`. Search embed query, tinh cosine similarity voi tung record, sort score giam dan va tra ve top-k.
+Mỗi `Document` được normalize thành record gồm `id`, `doc_id`, `content`, `metadata`, `embedding`. Search embed query, tính cosine similarity với từng record, sort score giảm dần và trả về top-k.
 
 **`search_with_filter` + `delete_document`**  
-`search_with_filter` filter metadata truoc, roi moi search tren tap ung vien da loc. `delete_document` xoa tat ca chunk co `metadata['doc_id']` hoac `doc_id` trung voi document can xoa.
+`search_with_filter` filter metadata trước, rồi mới search trên tập ứng viên đã lọc. `delete_document` xóa tất cả chunk có `metadata['doc_id']` hoặc `doc_id` trùng với document cần xóa.
 
 ### KnowledgeBaseAgent
 
 **`answer`**  
-Agent retrieve top-k chunk tu store, ghep thanh context co nhan `[Source 1]`, `[Source 2]`, sau do tao prompt yeu cau LLM chi tra loi dua tren context. Cach nay theo pattern RAG: retrieve truoc, generate sau.
+Agent retrieve top-k chunk từ store, ghép thành context có nhãn `[Source 1]`, `[Source 2]`, sau đó tạo prompt yêu cầu LLM chỉ trả lời dựa trên context. Cách này theo pattern RAG: retrieve trước, generate sau.
 
 ### Test Results
 
@@ -179,84 +179,84 @@ pytest tests/ -v
 42 passed
 ```
 
-**So tests pass:** 42 / 42
+**Số tests pass:** 42 / 42
 
 ---
 
 ## 5. Similarity Predictions
 
-Dung `_mock_embed` de embed cau, sau do goi `compute_similarity()`.
+Dùng `_mock_embed` để embed câu, sau đó gọi `compute_similarity()`.
 
-| Pair | Sentence A | Sentence B | Du doan | Actual Score | Dung? |
+| Pair | Sentence A | Sentence B | Dự đoán | Actual Score | Đúng? |
 |---|---|---|---|---:|---|
-| 1 | Python programming tutorial | Python coding guide for developers | high | 0.052 | Khong |
-| 2 | Knowledge base retrieval uses chunks | Vector search retrieves relevant document chunks | high | -0.142 | Khong |
-| 3 | Hybrid search combines semantic and keyword search | Reranking improves the order of retrieved chunks | medium | 0.081 | Gan dung |
-| 4 | Create a database cluster | Bake a chocolate cake | low | -0.067 | Dung |
-| 5 | Metadata filters narrow retrieval results | Marketing campaign budget planning | low | 0.037 | Dung |
+| 1 | Python programming tutorial | Python coding guide for developers | high | 0.052 | Không |
+| 2 | Knowledge base retrieval uses chunks | Vector search retrieves relevant document chunks | high | -0.142 | Không |
+| 3 | Hybrid search combines semantic and keyword search | Reranking improves the order of retrieved chunks | medium | 0.081 | Gần đúng |
+| 4 | Create a database cluster | Bake a chocolate cake | low | -0.067 | Đúng |
+| 5 | Metadata filters narrow retrieval results | Marketing campaign budget planning | low | 0.037 | Đúng |
 
-**Ket qua bat ngo nhat:**  
-Hai cau retrieval/chunking o pair 2 ve nghia kha gan nhau nhung score lai am. Dieu nay cho thay `_mock_embed` chi phu hop cho test deterministic cua lab, khong phai embedding semantic that. Khi benchmark nghiem tuc nen dung local embedder hoac OpenAI embedder.
+**Kết quả bất ngờ nhất:**  
+Hai câu retrieval/chunking ở pair 2 về nghĩa khá gần nhau nhưng score lại âm. Điều này cho thấy `_mock_embed` chỉ phù hợp cho test deterministic của lab, không phải embedding semantic thật. Khi benchmark nghiêm túc nên dùng local embedder hoặc OpenAI embedder.
 
 ---
 
-## 6. Results - Ca Nhan
+## 6. Results - Cá Nhân
 
 ### Benchmark Queries & Gold Answers
 
 | # | Query | Gold Answer |
 |---|---|---|
-| 1 | What are DigitalOcean's recommended best practices for a strong retrieval setup? | Nen can bang semantic/keyword search, dung filters, test chunking khi ket qua bi fragmented/noisy, va enable reranking khi can sap xep lai chunk lien quan. |
-| 2 | Why can chunks that are too small or too large hurt retrieval quality? | Chunk qua nho lam mat context; chunk qua lon co the chua noi dung khong lien quan va lam giam do chinh xac retrieval. |
-| 3 | When should filters be used in knowledge base retrieval? | Dung filters khi can gioi han retrieval theo document, file, metadata hoac URL path de tranh lay nham nguon. |
-| 4 | What is the difference between chunking, retrieval, and reranking in a RAG system? | Chunking chia data de index; retrieval chon candidate chunks; reranking sap xep lai candidate chunks truoc khi dua vao LLM. |
-| 5 | How should a team test whether a knowledge base returns useful answers? | Test bang query thuc te, xem top-k chunks, so sanh filtered/unfiltered search, va doi chieu answer voi source evidence. |
+| 1 | What are DigitalOcean's recommended best practices for a strong retrieval setup? | Nên cân bằng semantic/keyword search, dùng filters, test chunking khi kết quả bị fragmented/noisy, và enable reranking khi cần sắp xếp lại chunk liên quan. |
+| 2 | Why can chunks that are too small or too large hurt retrieval quality? | Chunk quá nhỏ làm mất context; chunk quá lớn có thể chứa nội dung không liên quan và làm giảm độ chính xác retrieval. |
+| 3 | When should filters be used in knowledge base retrieval? | Dùng filters khi cần giới hạn retrieval theo document, file, metadata hoặc URL path để tránh lấy nhầm nguồn. |
+| 4 | What is the difference between chunking, retrieval, and reranking in a RAG system? | Chunking chia data để index; retrieval chọn candidate chunks; reranking sắp xếp lại candidate chunks trước khi đưa vào LLM. |
+| 5 | How should a team test whether a knowledge base returns useful answers? | Test bằng query thực tế, xem top-k chunks, so sánh filtered/unfiltered search, và đối chiếu answer với source evidence. |
 
-### Ket Qua Cua Toi
+### Kết Quả Của Tôi
 
-Benchmark chay bang `benchmark_digitalocean_heading.py`, strategy `MarkdownHeadingChunker`, filter theo `category` khi query co chu de ro.
+Benchmark chạy bằng `benchmark_digitalocean_heading.py`, strategy `MarkdownHeadingChunker`, filter theo `category` khi query có chủ đề rõ.
 
-| # | Query | Top-1 Retrieved Chunk | Score | Relevant? | Agent Answer tom tat |
+| # | Query | Top-1 Retrieved Chunk | Score | Relevant? | Agent Answer tóm tắt |
 |---|---|---|---:|---|---|
-| 1 | Strong retrieval setup best practices | `Retrieval Example` / retrieval docs | 0.707 | Yes | Can dung hybrid retrieval, filters, chunking test va reranking. |
-| 2 | Chunks too small/large | `Improve Chunking Performance` / chunking docs | 0.378 | Yes | Chunk size anh huong context va noise; can test/tune chunking. |
-| 3 | When use filters | `DigitalOcean Knowledge Base Retrieval Best Practices` | 0.781 | Yes | Filters gioi han ket qua theo file, document, metadata, URL path. |
-| 4 | Chunking vs retrieval vs reranking | `DigitalOcean Knowledge Base Retrieval Best Practices` | 0.880 | Yes | Chunking tao indexed data, retrieval lay candidates, reranking sap xep lai. |
-| 5 | Test useful answers | `Test Reranking` / evaluation docs | 0.862 | Yes | Kiem tra retrieval/reranking bang query va source evidence. |
+| 1 | Strong retrieval setup best practices | `Retrieval Example` / retrieval docs | 0.707 | Yes | Cần dùng hybrid retrieval, filters, chunking test và reranking. |
+| 2 | Chunks too small/large | `Improve Chunking Performance` / chunking docs | 0.378 | Yes | Chunk size ảnh hưởng context và noise; cần test/tune chunking. |
+| 3 | When use filters | `DigitalOcean Knowledge Base Retrieval Best Practices` | 0.781 | Yes | Filters giới hạn kết quả theo file, document, metadata, URL path. |
+| 4 | Chunking vs retrieval vs reranking | `DigitalOcean Knowledge Base Retrieval Best Practices` | 0.880 | Yes | Chunking tạo indexed data, retrieval lấy candidates, reranking sắp xếp lại. |
+| 5 | Test useful answers | `Test Reranking` / evaluation docs | 0.862 | Yes | Kiểm tra retrieval/reranking bằng query và source evidence. |
 
-**Bao nhieu queries tra ve chunk relevant trong top-3?** 5 / 5
+**Bao nhiêu queries trả về chunk relevant trong top-3?** 5 / 5
 
 ---
 
 ## 7. What I Learned
 
-**Dieu hay nhat toi hoc duoc tu thanh vien khac trong nhom:**  
-Fixed-size baseline rat can thiet vi no tao moc so sanh don gian. Sentence-based va recursive chunking giup thay ro trade-off giua readability, chunk count va context preservation.
+**Điều hay nhất tôi học được từ thành viên khác trong nhóm:**  
+Fixed-size baseline rất cần thiết vì nó tạo mốc so sánh đơn giản. Sentence-based và recursive chunking giúp thấy rõ trade-off giữa readability, chunk count và context preservation.
 
-**Dieu hay nhat toi hoc duoc tu nhom khac qua demo:**  
-Can danh gia retrieval bang evidence, khong chi nhin score. Top-1 cao nhung sai source van co the lam agent tra loi sai.
+**Điều hay nhất tôi học được từ nhóm khác qua demo:**  
+Cần đánh giá retrieval bằng evidence, không chỉ nhìn score. Top-1 cao nhưng sai source vẫn có thể làm agent trả lời sai.
 
-**Neu lam lai, toi se thay doi gi trong data strategy?**  
-Toi se lay them 2 file reference/how-to de benchmark co nhieu case hon, dac biet query ve parameter va data source management. Toi cung se dung local semantic embedder thay vi mock/keyword embedder de ket qua gan thuc te hon.
+**Nếu làm lại, tôi sẽ thay đổi gì trong data strategy?**  
+Tôi sẽ lấy thêm 2 file reference/how-to để benchmark có nhiều case hơn, đặc biệt query về parameter và data source management. Tôi cũng sẽ dùng local semantic embedder thay vì mock/keyword embedder để kết quả gần thực tế hơn.
 
 ### Failure Analysis
 
-**Failure case:** Query 4 co top-2 la `Configure Reranking` trong category `setup`, khong nam trong expected category `retrieval/chunking`.  
-**Nguyen nhan:** Query co tu "reranking" nen lexical embedding uu tien chunk nao lap lai tu nay, du context chinh cua cau hoi la phan biet chunking, retrieval va reranking.  
-**Cai thien:** Dung semantic embedding that, them metadata filter `category=retrieval` hoac tang trong so cho heading/context thay vi chi dem keyword.
+**Failure case:** Query 4 có top-2 là `Configure Reranking` trong category `setup`, không nằm trong expected category `retrieval/chunking`.  
+**Nguyên nhân:** Query có từ "reranking" nên lexical embedding ưu tiên chunk nào lặp lại từ này, dù context chính của câu hỏi là phân biệt chunking, retrieval và reranking.  
+**Cải thiện:** Dùng semantic embedding thật, thêm metadata filter `category=retrieval` hoặc tăng trọng số cho heading/context thay vì chỉ đếm keyword.
 
 ---
 
-## Tu Danh Gia
+## Tự Đánh Giá
 
-| Tieu chi | Loai | Diem tu danh gia |
+| Tiêu chí | Loại | Điểm tự đánh giá |
 |---|---|---:|
-| Warm-up | Ca nhan | 5 / 5 |
-| Document selection | Nhom | 9 / 10 |
-| Chunking strategy | Nhom | 14 / 15 |
-| My approach | Ca nhan | 10 / 10 |
-| Similarity predictions | Ca nhan | 4 / 5 |
-| Results | Ca nhan | 9 / 10 |
-| Core implementation (tests) | Ca nhan | 30 / 30 |
-| Demo | Nhom | 4 / 5 |
-| **Tong** | | **95 / 100** |
+| Warm-up | Cá nhân | 5 / 5 |
+| Document selection | Nhóm | 9 / 10 |
+| Chunking strategy | Nhóm | 14 / 15 |
+| My approach | Cá nhân | 10 / 10 |
+| Similarity predictions | Cá nhân | 4 / 5 |
+| Results | Cá nhân | 9 / 10 |
+| Core implementation (tests) | Cá nhân | 30 / 30 |
+| Demo | Nhóm | 4 / 5 |
+| **Tổng** | | **95 / 100** |
